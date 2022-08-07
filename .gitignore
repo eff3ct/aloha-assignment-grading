@@ -1,1 +1,4 @@
 /venv
+*.json
+*.DS_store
+/__pycache__
