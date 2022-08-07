@@ -30,7 +30,7 @@ class Data:
     
     @staticmethod
     def load_members():
-        return [user for user in DB.select_members()]
+        return [user[0] for user in DB.select_members()]
     
     @staticmethod
     def update_submissions(verbose=False):
@@ -67,15 +67,15 @@ class Data:
         submissions = [submission[2] for submission in DB.select_submissions(user_id, practice[2]-week, practice[3]+week)]
         return [ac for ac in submissions if ac in problems]
 
+
 def main():
     members = Data.load_members()
     practices = Data.load_practices()
     for practice in practices:
-        print('='*10, practice[1], '='*10)
+        print(f'{"="*10} [{practice[0]}] {practice[1]} {"="*10}')
         for member in members:
-            print(f'{member}, {practice[0]}: {len(Data.calc_ac(member, practice[0]))}')
-        
+            print(f'{member}: {len(Data.calc_ac(member, practice[0]))}')
+
 
 if __name__ == '__main__':
     main()
-

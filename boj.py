@@ -13,7 +13,7 @@ class Config:
     }
     
     lower_bound = 39755970  # the first submission of the 2022.03
-    group_id    = 14017
+    group_id    = 14017 # ALOHA 2022 group id
     
     @classmethod
     def reset(cls):
@@ -78,6 +78,7 @@ class Format:
             'title': soup.get_text().split(' - ')[-1].strip()
         }
         return data
+
 
 class Status:
     

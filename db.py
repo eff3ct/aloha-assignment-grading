@@ -148,4 +148,3 @@ class DB:
     def select_practice_problems(cls, practice_id):
         cls.init()
         return cls.db.execute('SELECT * FROM practice_problems WHERE practice_id = ?', (practice_id,)).fetchall()
-
