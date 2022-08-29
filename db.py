@@ -16,7 +16,8 @@ class DB:
         cls.db.execute('''
             CREATE TABLE IF NOT EXISTS members (
                 user_id TEXT PRIMARY KEY,
-                level INTEGER
+                level INTEGER,
+                group_no INTEGER
             )
         ''')
         cls.db.execute('''

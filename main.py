@@ -1,4 +1,5 @@
 import json
+import csv
 import boj
 from db import DB
 
@@ -23,6 +24,18 @@ class Utils:
 class Data:
     
     @staticmethod
+    def init():
+        for table in DB.tables():
+            DB.drop_table(table)
+        DB.init()
+        
+    @classmethod
+    def update_all(cls):
+        cls.update_members()
+        cls.update_practices()
+        cls.update_submissions()
+    
+    @staticmethod
     def update_members():
         user_ids = boj.Group.members()
         for user_id in user_ids:
@@ -36,8 +49,8 @@ class Data:
     def update_submissions(verbose=False):
         members = Data.load_members()
         for member in members[3:]:
-            submissions = boj.Status.accepted_all(member[0])
-            if verbose: print(f'{member[0]}: {len(submissions)}')
+            submissions = boj.Status.accepted_all(member)
+            if verbose: print(f'{member}: {len(submissions)}')
             for submission in submissions:
                 DB.insert_submission(*submission.values())
                 
@@ -71,10 +84,13 @@ class Data:
 def main():
     members = Data.load_members()
     practices = Data.load_practices()
-    for practice in practices:
-        print(f'{"="*10} [{practice[0]}] {practice[1]} {"="*10}')
-        for member in members:
-            print(f'{member}: {len(Data.calc_ac(member, practice[0]))}')
+    titles = ['handle'] + [practice[1] for practice in practices]
+    rows = { str(member): [len(Data.calc_ac(member, practice[0])) for practice in practices] for member in members }
+    with open('assignment.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(['handle'] + [practice[1] for practice in practices])
+        for row in rows.items():
+            writer.writerow([row[0]] + row[1])
 
 
 if __name__ == '__main__':

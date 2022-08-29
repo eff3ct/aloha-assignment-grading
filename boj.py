@@ -6,7 +6,7 @@ class Config:
 
     session  = requests.Session()
     base_url = 'https://www.acmicpc.net'
-    token    = 'b2rbsholc64ue76b22iujl4oel' # OnlineJudge token from your browser cookies
+    token    = 'jeovpaan5dhjg1mcvm60f9fs9f' # OnlineJudge token from your browser cookies
     headers  = { 
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
         'Referer'   : 'https://www.acmicpc.net/'
