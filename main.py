@@ -1,11 +1,13 @@
 import json
 import csv
+import time
 import boj
 from db import DB
 
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
+from tier_score import tier_scores
 
 
 class Utils:
@@ -63,7 +65,19 @@ class Data:
             for problem in problems:
                 DB.insert_problem(problem['problem_id'], problem['title'])
                 DB.insert_practice_problem(practice['practice_id'], *problem.values())
+
+    @staticmethod
+    def update_point():
+        problems = Data.load_problems()
+        for problem in problems:
+            problem_id = problem[0]
+            tier = boj.Group.problem_tier(problem_id)
+            DB.insert_problem_tier(problem_id, tier)
     
+    @staticmethod
+    def load_problems():
+        return [problem for problem in DB.select_problems()]
+
     @staticmethod
     def load_practices():
         return [practice for practice in DB.select_practices()]
@@ -80,18 +94,29 @@ class Data:
         submissions = [submission[2] for submission in DB.select_submissions(user_id, practice[2]-week, practice[3]+week)]
         return [ac for ac in submissions if ac in problems]
 
+    def calc_scores(user_id, practice_id):
+        practice = DB.get_practice(practice_id)
+        week = 7 * 24 * 60 * 60 * 1000
+        problems = [problem[2] for problem in DB.select_practice_problems(practice_id)]
+        submissions = [submission[2] for submission in DB.select_submissions(user_id, practice[2]-week, practice[3]+week)]
+        ret = []
+        for ac in submissions:
+            if ac in problems:
+                problem = DB.select_problem(ac)
+                tier = int(problem[0][2]) - 1
+                ret.append(tier_scores[tier])
+        return ret
 
 def main():
     members = Data.load_members()
     practices = Data.load_practices()
     titles = ['handle'] + [practice[1] for practice in practices]
-    rows = { str(member): [len(Data.calc_ac(member, practice[0])) for practice in practices] for member in members }
+    rows = { str(member): [sum(Data.calc_scores(member, practice[0])) for practice in practices] for member in members }
     with open('assignment.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['handle'] + [practice[1] for practice in practices])
         for row in rows.items():
             writer.writerow([row[0]] + row[1])
-
 
 if __name__ == '__main__':
     main()
