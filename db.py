@@ -23,7 +23,8 @@ class DB:
         cls.db.execute('''
             CREATE TABLE IF NOT EXISTS problems (
                 problem_id INTEGER PRIMARY KEY,
-                title TEXT
+                title TEXT,
+                tier INTEGER
             )
         ''')
         cls.db.execute('''
@@ -57,6 +58,8 @@ class DB:
                 no INTEGER,
                 title TEXT,
                 is_required INTEGER,
+                tier INTEGER,
+                CONSTRAINT tier_fk FOREIGN KEY (tier) REFERENCES problems (tier),
                 CONSTRAINT practice_id_fk FOREIGN KEY (practice_id) REFERENCES practices (practice_id),
                 CONSTRAINT problem_id_fk FOREIGN KEY (problem_id) REFERENCES problems (problem_id)
             )
@@ -119,11 +122,24 @@ class DB:
             INSERT INTO practice_problems (practice_id, problem_id, no, title) VALUES (?, ?, ?, ?)
         ''', (practice_id, problem_id, no, title))
         cls.db.commit()
+
+    @classmethod
+    def insert_problem_tier(cls, problem_id, tier):
+        cls.init()
+        cls.db.execute('''
+            UPDATE problems SET tier=? WHERE problem_id=?
+        ''', (tier, problem_id))
+        cls.db.commit()
         
     @classmethod
     def select_members(cls):
         cls.init()
         return cls.db.execute('SELECT * FROM members').fetchall()
+
+    @classmethod
+    def select_problem(cls, problem_id):
+        cls.init()
+        return cls.db.execute('SELECT * FROM problems WHERE problem_id=?', (problem_id,)).fetchall()
     
     @classmethod
     def select_problems(cls):

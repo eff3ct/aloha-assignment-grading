@@ -6,14 +6,14 @@ class Config:
 
     session  = requests.Session()
     base_url = 'https://www.acmicpc.net'
-    token    = 'jeovpaan5dhjg1mcvm60f9fs9f' # OnlineJudge token from your browser cookies
+    token    = 'lmh14k9q5n00ce3q24hmabjn7k' # OnlineJudge token from your browser cookies
     headers  = { 
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
         'Referer'   : 'https://www.acmicpc.net/'
     }
     
-    lower_bound = 39755970  # the first submission of the 2022.03
-    group_id    = 14017 # ALOHA 2022 group id
+    lower_bound = 55437069  # 대충 lower bound
+    group_id    = 17099 # ALOHA 2023 group id
     
     @classmethod
     def reset(cls):
@@ -126,6 +126,7 @@ class Group:
         path = f'/group/practice/{cls.group_id}'
         soup = Config.request(method='GET', path=path, auth=True)
         result = [ Format.json_practice(practice) for practice in soup.select('table > tbody > tr') ]
+        print(result)
         return sorted(result, key=lambda x: x['practice_id'])
 
     @classmethod
@@ -133,3 +134,10 @@ class Group:
         path = f'/group/practice/view/{cls.group_id}/{practice_id}'
         soup = Config.request(method='GET', path=path, auth=True)
         return [ Format.json_practice_problem(problem) for problem in soup.select('ul.list-group.sidebar-nav-v1 > li > a')[:-1] ]
+
+    @classmethod
+    def problem_tier(cls, problem_id):
+        path = f'/problem/{problem_id}'
+        soup = Config.request(method='GET', path=path, auth=True)
+        return soup.select('blockquote > span')[0]['class'][0].split('-')[-1]
+
